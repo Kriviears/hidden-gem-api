@@ -1,4 +1,5 @@
 'use strict';
+import router from './routes'
 
 require('dotenv').config();
 const express = require('express');
@@ -6,6 +7,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -17,19 +19,17 @@ app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
 
-app.use(function errorHandler(error, req, res, next){
-  let response;
-  if(NODE_ENV === 'production'){
-    response = { error: { message: 'server error'} };
-  } else {
-    console.error(error);
-    response = { message: error.message, error};
-  }
-  res.status(500).json(response);
-});
+// api router
+app.use(keys.app.apiEndpoint, router)
+
+//catch errors and foward to errorHandler
+app.use((req, res, next) =>{
+  next(createError(404, 'NotFound'))
+})
+app.use(errorHandler)
 
 app.get('/', (req, res)=>{
-  res.send('Hello boilerplate!');
+  res.send('Hidden Gems API');
 });
 
 module.exports = app;
