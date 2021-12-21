@@ -1,13 +1,13 @@
-import express from 'express'
-import authRouter from './auth'
-import userRouter from './users'
-import gemRouter from './gems'
+const express = require('express');
+const authRouter = require('./auth');
+const userRouter = require('./users');
+const gemRouter = require('./gems');
 
 
 const router = express.Router()
 
 router.get('/', (req, res, next) => {
-  res.status(200).send('api endpoint')
+  res.status(200).send('Gems API')
 })
 
 router.use('/auth', authRouter)

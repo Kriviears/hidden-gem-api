@@ -1,2 +1,4 @@
-export { default as User } from './user'
-export { default as Gem } from './gem'
+const { User } = require('./user')
+const { Gem } = require('./gem')
+
+module.exports = {User, Gem};

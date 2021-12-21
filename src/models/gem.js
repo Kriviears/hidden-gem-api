@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+const mongoose = require('mongoose')
 const { ObjectId } = mongoose.Schema.Types
 
 const gemSchema = new mongoose.Schema(
@@ -16,7 +16,7 @@ const gemSchema = new mongoose.Schema(
       type: [String]
     },
     location: {
-      type: [{longitude: Number, latitude: Number}],
+      type: {latitude: Number, longitude: Number},
       required: true
     },
     created: {
@@ -40,4 +40,4 @@ const gemSchema = new mongoose.Schema(
 
 const Gem = mongoose.model('Gem', gemSchema)
 
-export default Gem
+module.exports = Gem;

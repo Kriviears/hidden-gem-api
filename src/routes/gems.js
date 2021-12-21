@@ -1,9 +1,9 @@
-import express from 'express'
+const express = require('express');
 const router = express.Router()
-import jwt from 'jsonwebtoken'
-import keys from '../config/keys'
-import { User, Gem } from '../models'
-import { requireAuth } from '../middleware'
+const jwt = require('jsonwebtoken')
+const keys = require('../config/keys')
+const { User, Gem } = require('../models')
+//const { requireAuth } = require('../middleware')
 
 router.get('/', async (request, response) => {
   const populateQuery = [
@@ -25,7 +25,7 @@ router.get('/', async (request, response) => {
   response.json(posts.map((post) => post.toJSON()))
 })
 
-router.post('/', requireAuth, async (request, response, next) => {
+router.post('/', async (request, response, next) => {
   const { text } = request.body
   const { user } = request
 
@@ -64,7 +64,7 @@ router.get('/:id', async (request, response) => {
   }
 })
 
-router.delete('/:id', requireAuth, async (request, response, next) => {
+router.delete('/:id', async (request, response, next) => {
   const { userId } = request.body
   const { id } = request.params
   const gem = await Gem.findOne({ _id: id })
@@ -91,7 +91,7 @@ router.delete('/:id', requireAuth, async (request, response, next) => {
   }
 })
 
-router.all('/like/:gemId', requireAuth, async (request, response) => {
+router.all('/like/:gemId', async (request, response) => {
   const { gemId } = request.params
   const { user } = request
   const gem = await Gem.findOne({ _id: gemId })

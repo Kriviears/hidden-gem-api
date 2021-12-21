@@ -1,7 +1,7 @@
-import express from 'express'
-import bcrypt from 'bcryptjs'
-import { User } from '../models'
-import { requireAuth } from '../middleware'
+const express = require('express')
+const bcrypt = require('bcryptjs');
+const { User } = require('../models')
+//const requireAuth = require('../middleware')
 
 const router = express.Router()
 
@@ -24,7 +24,7 @@ router
       response.status(404).end()
     }
   })
-  .put(requireAuth, async (request, response) => {
+  .put(async (request, response) => {
     const { current_password, password, profile_image } = request.body
     const { id } = request.params
     

@@ -1,4 +1,4 @@
-module.exports = {
+keys = {
   app: {
     name: 'Hidden Gems API',
     apiEndpoint: (process.env.API_URL) ? `/${process.env.API_URL}` : '/api',
@@ -11,3 +11,5 @@ module.exports = {
     tokenLife: '7d',
   },
 }
+
+module.exports = keys;

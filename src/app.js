@@ -1,12 +1,12 @@
 'use strict';
-import router from './routes'
-
 require('dotenv').config();
+const keys = require('./config/keys')
+const router = require('./routes/index')
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
-const { NODE_ENV } = require('./config');
+const NODE_ENV = require('./config');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -18,6 +18,7 @@ const morganOption = (NODE_ENV === 'production')
 app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
+
 
 // api router
 app.use(keys.app.apiEndpoint, router)
