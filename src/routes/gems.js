@@ -2,34 +2,73 @@ const express = require('express');
 const router = express.Router()
 const jwt = require('jsonwebtoken')
 const keys = require('../config/keys')
-const { User, Gem } = require('../models')
+const User = require('../models/user')
+const Gem = require('../models/gem')
+const generateRange = require('../helperFunctions');
+const { response } = require('../app');
+
 //const { requireAuth } = require('../middleware')
 
-router.get('/', async (request, response) => {
+
+router.get('/', async (req, res) => {
+  // const {range, user} = request.body;
+  console.log("A new try")
+  let gems
+
+
+  // const gemRangeLat = generateRange(user.location[0], range)
+  // const gemRangeLong = generateRange(user.location[1], range)
   const populateQuery = [
-    { path: 'author', select: ['username', 'profile_image'] },
-    {
-      path: 'comments',
-      populate: { path: 'author', select: ['username', 'profile_image'] }
-    },
+    { 
+      path: 'author', 
+      select: ['username', 'profile_image'] },
     {
       path: 'likes',
       populate: { path: 'user', select: ['username']}
+    },
+    {
+      path: 'dislikes',
+      populate: { path: 'user', select: ['username']}
     }
   ]
-  const gems = await Gems.find({})
-    .sort({ created: -1 })
-    .populate(populateQuery)
-    .exec()
+  console.log("Before the find")
 
-  response.json(posts.map((post) => post.toJSON()))
+  //getting all to test connection
+  try{
+    gems = await Gem.findOne()
+    console.log(gems)
+    if(!gems){
+      return res.status(202).json({ error: 'Cannot find gems in your area' })
+    }
+    res.json(gems.map((gem) => gem.toJSON()))
+  } catch(err){
+    return res.status(422).json({ err: err.message})
+  }
+
+  // const gems = await Gem.find({
+  //   location: {
+  //     latitude:  {$in: gemRangeLat}, 
+  //     longitude: {$in: gemRangeLong}
+  //   },
+  // })
+  //   .sort({ likes: -1 })
+  //   .populate(populateQuery)
+  //   .exec()
+
+    console.log("Got our gems")
+    if(!gems){
+      return res.status(202).json({ error: 'Cannot find gems in your area' })
+    }
+  
+
+  //res.json(gems.map((gem) => gem.toJSON()))
 })
 
 router.post('/', async (request, response, next) => {
-  const { text } = request.body
+  
   const { user } = request
 
-  const post = new Gem({
+  const gem = new Gem({
     text: text,
     author: user._id,
   })
@@ -49,10 +88,6 @@ router.post('/', async (request, response, next) => {
 router.get('/:id', async (request, response) => {
   const populateQuery = [
     { path: 'author', select: ['username', 'profile_image'] },
-    {
-      path: 'comments',
-      populate: { path: 'author', select: ['username', 'profile_image'] },
-    },
   ]
   const gem = await Gem.findById(request.params.id)
     .populate(populateQuery)
@@ -69,11 +104,11 @@ router.delete('/:id', async (request, response, next) => {
   const { id } = request.params
   const gem = await Gem.findOne({ _id: id })
 
-  console.log(userId, id, post)
+  console.log(userId, id, gem)
   
 
   if (!gem) {
-    return response.status(422).json({ error: 'Cannot find post' })
+    return response.status(422).json({ error: 'Cannot find gem' })
   }
   if (gem.author._id.toString() === userId.toString()) {
     try {
@@ -110,7 +145,7 @@ router.all('/like/:gemId', async (request, response) => {
 
       if(gem.dislikes.includes(user.id)){
         const result = await gem.updateOne({
-          $pull: {likes: user.id}
+          $pull: {dislikes: user.id}
         })
       }
 
@@ -121,6 +156,39 @@ router.all('/like/:gemId', async (request, response) => {
       response.json(result)
     }
   } catch (err) {
+    return response.status(422).json({ error: err })
+  }
+})
+
+router.all('/dislike/:gemId', async (request, responce)=> {
+  const { gemId } = request.params
+  const { user } = request
+  const gem = await Gem.findOne({ _id: gemId })
+
+  if(!gem){
+    return response.status(422).json({ error: 'Cannot find gem' })
+  }
+  try {
+    if (gem.dislikes.includes(user.id)){
+      const result = await gem.updateOne({
+        $pull: { dislikes: user.id }
+      })
+
+      response.json(result)
+    } else {
+      if(gem.likes.includes(user.id)){
+        const result = await gem.updateOne({
+          $pull: { likes: user.id }
+        })
+      }
+
+      const result = await gem.updateOne({
+        $push: { dislikes: user.id }
+      })
+
+      response.json(result)
+    }
+  } catch(err){
     return response.status(422).json({ error: err })
   }
 })
