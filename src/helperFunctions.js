@@ -11,10 +11,19 @@ const generateRange = (number, distance=5)=>{
     for(let i=-distance; i<0; i++){
         range.push(number+i);
     }
-    range.push(number)
+    
     for(let i=0; i<=distance; i++){
         range.push(number+i)
     }
     
     return range
 }
+
+
+const rating = (gem)=>{
+    const total = gem.likes.length + gem.dislikes.length;
+    return ((gem.likes.length / total) * 100)
+}
+
+
+module.exports = {generateRange}

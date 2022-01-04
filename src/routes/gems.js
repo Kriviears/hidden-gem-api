@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const keys = require('../config/keys')
 const User = require('../models/user')
 const Gem = require('../models/gem')
-const generateRange = require('../helperFunctions');
+const {generateRange} = require('../helperFunctions');
 const { response } = require('../app');
 
 //const { requireAuth } = require('../middleware')
@@ -16,8 +16,9 @@ router.get('/', async (req, res) => {
   let gems
 
 
-  // const gemRangeLat = generateRange(user.location[0], range)
-  // const gemRangeLong = generateRange(user.location[1], range)
+  const gemRangeLat = generateRange(40, 1)
+  const gemRangeLong = generateRange(-106, 1)
+  console.log("ranges", gemRangeLat, gemRangeLong)
   const populateQuery = [
     { 
       path: 'author', 
@@ -34,26 +35,43 @@ router.get('/', async (req, res) => {
   console.log("Before the find")
 
   //getting all to test connection
+  // try{
+  //   gems = await Gem.find()
+  //   console.log(gems)
+  //   if(!gems){
+  //     return res.status(202).json({ error: 'Cannot find gems in your area' })
+  //   }
+  //   res.json(gems.map((gem) => gem.toJSON()))
+  // } catch(err){
+  //   return res.status(422).json({ err: err.message})
+  // }
+
   try{
-    gems = await Gem.findOne()
+    gems = await Gem.find({ 
+    //  $and:[
+      // {location: {
+      //    $in: [], 
+      //    $in: [],
+      // }},
+    //   {location: {
+    //     $in: [], 
+    //     $in: gemRangeLong
+    //  }}
+    //]
+    })
+      .sort({ likes: -1 })
+      //.populate(populateQuery)
+      .exec()
     console.log(gems)
     if(!gems){
-      return res.status(202).json({ error: 'Cannot find gems in your area' })
+      return res.status(202).json({error: 'Cannot find gems in your area'})
     }
     res.json(gems.map((gem) => gem.toJSON()))
   } catch(err){
-    return res.status(422).json({ err: err.message})
+    return res.status(422).json({ err: err.message })
   }
 
-  // const gems = await Gem.find({
-  //   location: {
-  //     latitude:  {$in: gemRangeLat}, 
-  //     longitude: {$in: gemRangeLong}
-  //   },
-  // })
-  //   .sort({ likes: -1 })
-  //   .populate(populateQuery)
-  //   .exec()
+
 
     console.log("Got our gems")
     if(!gems){
