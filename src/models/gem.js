@@ -15,8 +15,12 @@ const gemSchema = new mongoose.Schema(
     category: {
       type: [String]
     },
-    location: {
-      type: {latitude: Number, longitude: Number},
+    lat: {
+      type: Number,
+      required: true
+    },
+    long:{
+      type: Number,
       required: true
     },
     created: {
