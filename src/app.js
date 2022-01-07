@@ -22,16 +22,11 @@ mongoose.connect(DATABASE_URL, {
 
 mongoose.connection.on('connected', ()=>{
   console.log('connected to the Gems Database')
-
-  
 })
 
 mongoose.connection.on('error', (err)=>{
   console.log('err connecting', err)
 })
-
-
-
 
 const app = express();
 
