@@ -19,7 +19,7 @@ const gemSchema = new mongoose.Schema(
       type: Number,
       required: true
     },
-    long:{
+    long: {
       type: Number,
       required: true
     },

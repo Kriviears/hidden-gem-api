@@ -14,11 +14,9 @@ router.get('/', async (req, res) => {
   // const {range, user} = request.body;
   console.log("A new try")
   let gems
-
-
-  const gemRangeLat = generateRange(40, 1)
-  const gemRangeLong = generateRange(-106, 1)
-  console.log("ranges", gemRangeLat, gemRangeLong)
+  const currentLat = 437;
+  const currentLong = -106;
+  const currentRange = 1
   const populateQuery = [
     { 
       path: 'author', 
@@ -48,19 +46,19 @@ router.get('/', async (req, res) => {
 
   try{
     gems = await Gem.find({ 
-    //  $and:[
-      // {location: {
-      //    $in: [], 
-      //    $in: [],
-      // }},
-    //   {location: {
-    //     $in: [], 
-    //     $in: gemRangeLong
-    //  }}
-    //]
+     $and:[
+      {$and: [
+        {lat: { $gte: (currentLat - currentRange)}},
+        {lat: { $lte: (currentLat + currentRange)}}
+      ]},
+      {$and: [
+        {long: { $gte: (currentLong - currentRange)}},
+        {long: { $lte: (currentLong + currentRange)}}
+      ]}
+    ]
     })
       .sort({ likes: -1 })
-      //.populate(populateQuery)
+      .populate(populateQuery)
       .exec()
     console.log(gems)
     if(!gems){
@@ -77,18 +75,18 @@ router.get('/', async (req, res) => {
     if(!gems){
       return res.status(202).json({ error: 'Cannot find gems in your area' })
     }
-  
-
-  //res.json(gems.map((gem) => gem.toJSON()))
 })
 
 router.post('/', async (request, response, next) => {
   
-  const { user } = request
+  const { user, category } = request
 
   const gem = new Gem({
     text: text,
     author: user._id,
+    category,
+    lat: user.lat,
+    long: user.long 
   })
 
   try {
@@ -105,7 +103,7 @@ router.post('/', async (request, response, next) => {
 
 router.get('/:id', async (request, response) => {
   const populateQuery = [
-    { path: 'author', select: ['username', 'profile_image'] },
+    { path: 'author', select: ['username'] },
   ]
   const gem = await Gem.findById(request.params.id)
     .populate(populateQuery)
