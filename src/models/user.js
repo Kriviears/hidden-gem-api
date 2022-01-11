@@ -1,5 +1,5 @@
-const mongoose = require('mongoose')
-const { ObjectId } = mongoose.Schema.Types
+const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Schema.Types;
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -10,39 +10,46 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     unique: true,
-    required: true
+    required: true,
   },
   passwordHash: {
     type: String,
     required: true,
   },
-  profile_image: {  },
+  // city: {
+  //   type: String,
+  //   required: true,
+  // },
+  // state: {
+  //   type: String,
+  //   required: true,
+  // },
   gems: [
     {
       type: ObjectId,
-      ref: 'Gem',
+      ref: "Gem",
     },
   ],
   gemLikes: [
     {
       type: ObjectId,
-      ref: 'Gem',
+      ref: "Gem",
     },
   ],
   gemDislikes: [
     {
       type: ObjectId,
-      ref: 'Gem'
-    }
+      ref: "Gem",
+    },
   ],
   bookmarks: [
     {
       type: ObjectId,
-      ref: 'Gem'
-    }
-  ]
-})
+      ref: "Gem",
+    },
+  ],
+});
 
-const User = mongoose.model('User', userSchema)
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;
