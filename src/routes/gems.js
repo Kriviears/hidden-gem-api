@@ -157,41 +157,32 @@ router.all("/like/:gemId/:uid", async (req, response) => {
       const result = await gem.updateOne({
         $pull: { likes: uid },
       });
-      const updatedUser = await currentUser
-        .updateOne({
-          $pull: { gemLikes: gem },
-        })
-        .populate("gems")
-        .exec();
+      const updatedUser = await currentUser.updateOne({
+        $pull: { gemLikes: gemId },
+      });
       response.json({
         user: updatedUser,
         gem: result,
       });
       0;
     } else {
-      if (gem.dislikes.includes(uid)) {
-        const result = await gem.updateOne({
-          $pull: { dislikes: uid },
-          // $push: { likes: uid },
-        });
-        const updatedUser = await currentUser
-          .updateOne({
-            $pull: { gemDislikes: gem },
-            // $push: { gemLikes: gemId },
-          })
-          .populate("gems")
-          .exec();
-        response.json({
-          user: updatedUser,
-          gem: result,
-        });
-      }
-      const updatedUser = await currentUser
-        .updateOne({
-          $push: { gemLikes: gem },
-        })
-        .populate("gems")
-        .exec();
+      // if (gem.dislikes.includes(uid)) {
+      //   const result = await gem.updateOne({
+      //     $pull: { dislikes: uid },
+      //     // $push: { likes: uid },
+      //   });
+      //   const updatedUser = await currentUser.updateOne({
+      //     $pull: { gemDislikes: gemId },
+      //     // $push: { gemLikes: gemId },
+      //   });
+      //   response.json({
+      //     user: updatedUser,
+      //     gem: result,
+      //   });
+      // }
+      const updatedUser = await currentUser.updateOne({
+        $push: { gemLikes: gemId },
+      });
       const result = await gem.updateOne({
         $push: { likes: uid },
       });
@@ -220,39 +211,30 @@ router.all("/dislike/:gemId/:uid", async (request, response) => {
       const result = await gem.updateOne({
         $pull: { dislikes: uid },
       });
-      const updatedUser = await currentUser
-        .updateOne({
-          $pull: { gemDislikes: gemId },
-        })
-        .populate("gems")
-        .exec();
+      const updatedUser = await currentUser.updateOne({
+        $pull: { gemDislikes: gemId },
+      });
       response.json({
         user: updatedUser,
         gem: result,
       });
     } else {
-      if (gem.likes.includes(uid)) {
-        const result = await gem.updateOne({
-          $pull: { likes: uid },
-        });
-        const updatedUser = await currentUser
-          .updateOne({
-            $pull: { gemLikes: gem },
-          })
-          .populate("gems")
-          .exec();
-        response.json({
-          user: updatedUser,
-          gem: result,
-        });
-      }
+      // if (gem.likes.includes(uid)) {
+      //   const result = await gem.updateOne({
+      //     $pull: { likes: uid },
+      //   });
+      //   const updatedUser = await currentUser.updateOne({
+      //     $pull: { gemLikes: gemId },
+      //   });
+      //   response.json({
+      //     user: updatedUser,
+      //     gem: result,
+      //   });
+      // }
 
-      const updatedUser = await currentUser
-        .updateOne({
-          $push: { gemDislikes: gemId },
-        })
-        .populate("gems")
-        .exec();
+      const updatedUser = await currentUser.updateOne({
+        $push: { gemDislikes: gemId },
+      });
       const result = await gem.updateOne({
         $push: { dislikes: uid },
       });
