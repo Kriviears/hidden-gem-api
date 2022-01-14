@@ -1,7 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
-const Gem = require("../models/gem");
 const keys = require("../config/keys");
 const jwt = require("jsonwebtoken");
 
@@ -17,9 +16,6 @@ router.post("/register", async (req, res) => {
   if (!password || !username || !email) {
     return res.status(422).json({ error: "please add all the fields" });
   }
-
-  console.log(req.body);
-  console.log(User);
 
   User.findOne({ email: email }).then((savedUser) => {
     if (savedUser) {
@@ -81,13 +77,8 @@ router.post("/login", async (req, res) => {
   const token = jwt.sign(userForToken, keys.jwt.secret);
   res.status(200).send({
     token,
-    email,
     uid: user.id,
     username: user.username,
-    // gems: user.gems,
-    // gemLikes: user.gemLikes,
-    // gemDislikes: user.gemDislikes,
-    // bookmarks: user.bookmarks,
   });
 });
 

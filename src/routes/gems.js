@@ -4,30 +4,6 @@ const jwt = require("jsonwebtoken");
 const keys = require("../config/keys");
 const User = require("../models/user");
 const Gem = require("../models/gem");
-const { generateRange } = require("../helperFunctions");
-// const { response, request } = require("../app");
-
-//const { requireAuth } = require('../middleware')
-
-router.get("/close-gems", async (req, res) => {
-  const userPos = req.body;
-
-  try {
-    const nearGems = await Gem.find({});
-    console.log(req);
-    res.status(200).json({
-      status: "success",
-      data: {
-        nearGems,
-      },
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: "fail",
-      message: err,
-    });
-  }
-});
 
 router.get("/:uLong/:uLat", async (request, response, next) => {
   const { uLong, uLat } = request.params;
@@ -43,6 +19,28 @@ router.get("/:uLong/:uLat", async (request, response, next) => {
         },
       },
     ]);
+    console.log(nearGems);
+    response.status(200).json({ nearGems });
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+router.post("/filter/:uLong/:uLat", async (request, response, next) => {
+  const { uLong, uLat } = request.params;
+  const { distance, categories } = request.body;
+  try {
+    const nearGems = await Gem.aggregate([
+      {
+        $geoNear: {
+          near: { type: "Point", coordinates: [uLong * 1, uLat * 1] },
+          spherical: true,
+          maxDistance: distance,
+          query: { category: { $in: categories } },
+          distanceField: "dist.calculated",
+        },
+      },
+    ]);
     response.status(200).json({ nearGems });
   } catch (err) {
     console.error(err);
@@ -51,7 +49,7 @@ router.get("/:uLong/:uLat", async (request, response, next) => {
 
 router.post("/", async (request, response, next) => {
   const { user, name, lat, long, category, description } = request.body;
-  console.log(request.body);
+
   const gem = new Gem({
     name,
     author: user.uid,
@@ -92,7 +90,6 @@ router.get("/:id", async (request, response) => {
 
 router.patch("/bookmark/:gemId/:uid", async (request, response) => {
   const { gemId, uid } = request.params;
-  // const { userId } = request.body;
   const gem = await Gem.findOne({ _id: gemId });
   const user = await User.findOne({ _id: uid });
   try {
@@ -117,12 +114,10 @@ router.patch("/bookmark/:gemId/:uid", async (request, response) => {
   }
 });
 
-router.delete("/:id", async (request, response, next) => {
-  const { userId } = request.body;
-  const { id } = request.params;
+router.delete("/:id/:userId", async (request, response, next) => {
+  const { id, userId } = request.params;
   const gem = await Gem.findOne({ _id: id });
-
-  console.log(userId, id, gem);
+  const currentUser = await User.findOne({ _id: userId });
 
   if (!gem) {
     return response.status(422).json({ error: "Cannot find gem" });
@@ -131,10 +126,9 @@ router.delete("/:id", async (request, response, next) => {
     try {
       const removedGem = await gem.remove();
 
-      const userUpdate = await User.updateOne(
-        { _id: userId },
-        { $pull: { gems: id } }
-      );
+      const userUpdate = await currentUser.updateOne({ $pull: { gems: id } });
+
+      userUpdate.save();
 
       response.json(removedGem);
     } catch (err) {
@@ -145,7 +139,6 @@ router.delete("/:id", async (request, response, next) => {
 
 router.all("/like/:gemId/:uid", async (req, response) => {
   const { gemId, uid } = req.params;
-  // const { userId } = req.body;
   const gem = await Gem.findOne({ _id: gemId });
   const currentUser = await User.findOne({ _id: uid });
 
@@ -166,20 +159,6 @@ router.all("/like/:gemId/:uid", async (req, response) => {
       });
       0;
     } else {
-      // if (gem.dislikes.includes(uid)) {
-      //   const result = await gem.updateOne({
-      //     $pull: { dislikes: uid },
-      //     // $push: { likes: uid },
-      //   });
-      //   const updatedUser = await currentUser.updateOne({
-      //     $pull: { gemDislikes: gemId },
-      //     // $push: { gemLikes: gemId },
-      //   });
-      //   response.json({
-      //     user: updatedUser,
-      //     gem: result,
-      //   });
-      // }
       const updatedUser = await currentUser.updateOne({
         $push: { gemLikes: gemId },
       });
@@ -199,7 +178,6 @@ router.all("/like/:gemId/:uid", async (req, response) => {
 
 router.all("/dislike/:gemId/:uid", async (request, response) => {
   const { gemId, uid } = request.params;
-  // const { user } = request.body;
   const gem = await Gem.findOne({ _id: gemId });
   const currentUser = await User.findOne({ _id: uid });
 
@@ -219,19 +197,6 @@ router.all("/dislike/:gemId/:uid", async (request, response) => {
         gem: result,
       });
     } else {
-      // if (gem.likes.includes(uid)) {
-      //   const result = await gem.updateOne({
-      //     $pull: { likes: uid },
-      //   });
-      //   const updatedUser = await currentUser.updateOne({
-      //     $pull: { gemLikes: gemId },
-      //   });
-      //   response.json({
-      //     user: updatedUser,
-      //     gem: result,
-      //   });
-      // }
-
       const updatedUser = await currentUser.updateOne({
         $push: { gemDislikes: gemId },
       });
