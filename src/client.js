@@ -1,5 +1,5 @@
-const {DATABASE_URL} = require('./config.js')
-const { MongoClient } = require('mongodb');
+const { DATABASE_URL } = require("./config.js");
+const { MongoClient } = require("mongodb");
 // const client = new MongoClient(DATABASE_URL)
 // async function run() {
 //   try {
@@ -27,10 +27,15 @@ const { MongoClient } = require('mongodb');
 
 // run().catch(console.dir);
 
-
-const client = new MongoClient(DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true });
-client.connect(err => {
-  const collection = client.db("local_library").collection("Gems");
+const client = new MongoClient(DATABASE_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+client.connect((err) => {
+  const collection = client
+    .db("local_library")
+    .collection("Gems")
+    .collection("users");
   // perform actions on the collection object
   client.close();
 });

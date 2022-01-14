@@ -1,4 +1,4 @@
-const { User } = require('./user')
-const { Gem } = require('./gem')
+const { User } = require("./user");
+const { Gem } = require("./gem");
 
-module.exports = {User, Gem};
+module.exports = { User, Gem };
