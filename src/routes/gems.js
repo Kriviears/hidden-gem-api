@@ -76,8 +76,10 @@ router.post("/", async (request, response, next) => {
   }
 });
 
+
 router.get("/:id", async (request, response) => {
   const populateQuery = [{ path: "author", select: ["username"] }];
+
   const gem = await Gem.findById(request.params.id)
     .populate(populateQuery)
     .exec();

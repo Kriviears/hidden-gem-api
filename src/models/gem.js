@@ -33,6 +33,7 @@ const gemSchema = new mongoose.Schema({
       type: ObjectId,
       ref: "User",
     },
+
   ],
   dislikes: [
     {
